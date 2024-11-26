@@ -64,6 +64,7 @@ bool sendTelemetry(unsigned int totalSeen, unsigned int totalFpSeen, unsigned in
             && SensirionSGP30::SendDiscovery()
             && HX711::SendDiscovery()
             && DS18B20::SendDiscovery()
+            && ENVIV::SendDiscovery()
 #endif
         ) {
             sentDiscovery = true;
@@ -181,6 +182,7 @@ void setupNetwork() {
     SensirionSGP30::ConnectToWifi();
     HX711::ConnectToWifi();
     DS18B20::ConnectToWifi();
+    ENVIV::ConnectToWifi();
 #endif
 
     unsigned int connectProgress = 0;
@@ -243,6 +245,7 @@ void setupNetwork() {
     SensirionSGP30::SerialReport();
     HX711::SerialReport();
     DS18B20::SerialReport();
+    ENVIV::SerialReport();
 
 #endif
     Serial.print("Query:        ");
@@ -545,6 +548,7 @@ void setup() {
     SensirionSGP30::Setup();
     HX711::Setup();
     DS18B20::Setup();
+    ENVIV::Setup();
 #endif
     xTaskCreatePinnedToCore(scanTask, "scanTask", SCAN_TASK_STACK_SIZE, nullptr, 1, &scanTaskHandle, CONFIG_BT_NIMBLE_PINNED_TO_CORE);
     reportSetup();
@@ -582,5 +586,6 @@ void loop() {
     SensirionSGP30::Loop();
     HX711::Loop();
     DS18B20::Loop();
+    ENVIV::Loop();
 #endif
 }

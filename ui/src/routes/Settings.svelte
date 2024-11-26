@@ -134,6 +134,9 @@
         <h4>DS18B20:</h4>
         <p><label>DS18B20 sensor pin (-1 for disable):<br /><input type="number" step="1" name="ds18b20_pin" placeholder="-1" bind:value={$extras.ds18b20_pin}/></label></p>
         <p><label>DS18B20 temperature offset:<br /><input type="number" step="0.01" min="-40" max="125" name="dsTemp_offset" placeholder="0.00" bind:value={$extras.dsTemp_offset}/></label></p>
+        <h4>ENVIV - Barometric Pressure + Temperature Sensor:</h4>
+        <p><label>I2C Bus:<br /><input type="number" step="1" min="1" max="2" name="ENVIVBMP280_I2c_Bus" placeholder="1" bind:value={$extras.ENVIVBMP280_I2c_Bus}/></label></p>
+        <p><label>I2C address (0x76 or 0x77):<br /><input name="ENVIVBMP280_I2c" bind:value={$extras.ENVIVBMP280_I2c}/></label></p>
         <div class="bc"><button class="btn left" on:click|preventDefault={restart}>{r ? "Restarting..." : "Restart"}</button><input class="btn right" type="submit" value={s ? "Saving..." : "Save"} /></div>
     </form>
     {/if}
