@@ -50,6 +50,16 @@
         <p><label>Rssi adjustment for receiver (use only if you know this device has a weak antenna):<br /><input type="number" step="1" min="-100" max="100" name="rx_adj_rssi" placeholder="0" bind:value={$extras.rx_adj_rssi}/></label></p>
         <p><label>Factor used to account for absorption, reflection, or diffraction:<br /><input type="number" step="0.01" min="-100" max="100" name="absorption" placeholder="3.50" bind:value={$extras.absorption}/></label></p>
         <p><label>Rssi expected from this tx power at 1m (used for node iBeacon):<br /><input type="number" step="1" min="-100" max="100" name="tx_ref_rssi" placeholder="-59" bind:value={$extras.tx_ref_rssi}/></label></p>
+
+        <h2><a href='https://espresense.com/configuration/settings#energy' target='_blank'>Power Monitoring</a></h2>
+        <p><label>Energy Monitoring Device:<br />
+            <select name="energy_device" bind:value={$extras.energy_device}>
+                <option value="0">None</option>
+                <option value="1">SwitchBot Plug</option>
+                <option value="2">Anthom Smart Plug</option>
+            </select>
+        </label></p>
+
         <h2><a href="https://espresense.com/configuration/settings#leds" target="_blank">LEDs</a></h2>
         <h4>LED 1:</h4>
         <p><label>LED Type:<br /><select name="led_1_type" bind:value={$extras.led_1_type}><option disabled selected hidden>PWM</option><option value="0">PWM</option><option value="1">PWM Inverted</option><option value="2">Addressable GRB</option><option value="3">Addressable GRBW</option><option value="4">Addressable RGB</option><option value="5">Addressable RGBW</option></select></label></p>
