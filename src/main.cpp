@@ -135,7 +135,7 @@ void setupNetwork() {
 #ifdef VERSION
     AsyncWiFiSettings.info("ESPresense Version: " + String(VERSION));
 #endif
-    room = AsyncWiFiSettings.string("room", ESPMAC, "Room");
+    room = AsyncWiFiSettings.string("room", getEspMac(), "Room");
     auto wifiTimeout = AsyncWiFiSettings.integer("wifi_timeout", DEFAULT_WIFI_TIMEOUT, "Seconds to wait for WiFi before captive portal (-1 = forever)");
     auto portalTimeout = 1000UL * AsyncWiFiSettings.integer("portal_timeout", DEFAULT_PORTAL_TIMEOUT, "Seconds to wait in captive portal before rebooting");
     std::vector<String> ethernetTypes = {"None", "WT32-ETH01", "ESP32-POE", "WESP32", "QuinLED-ESP32", "TwilightLord-ESP32", "ESP32Deux", "KIT-VE", "LilyGO-T-ETH-POE", "GL-inet GL-S10 v2.1 Ethernet", "EST-PoE-32"};
