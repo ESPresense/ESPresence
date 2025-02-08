@@ -78,41 +78,71 @@ void checkForUpdates() {
 }
 
 void firmwareUpdate() {
+    String url = updateUrl.startsWith("http") ? updateUrl : getFirmwareUrl();
+    bool isSecure = url.startsWith("https://");
 
-    WiFiClientSecure client;
-    client.setTimeout(12);
-    client.setHandshakeTimeout(8);
-    client.setInsecure();
-    {  // WiFiClientSecure needs to be destroyed after HttpReleaseUpdate
-        HttpReleaseUpdate httpUpdate;
-        httpUpdate.onStart([](void) {
-            autoUpdateAttempts++;
-            updateStartedMillis = millis();
-            GUI::Update(UPDATE_STARTED);
-            HttpWebServer::UpdateStart();
-        });
-        httpUpdate.onEnd([](bool success) {
-            if (success)
-                SPIFFS.remove("/update");
-            updateStartedMillis = 0;
-            GUI::Update(UPDATE_COMPLETE);
-            HttpWebServer::UpdateEnd();
-        });
-        httpUpdate.onProgress([](int progress, int total) {
-            GUI::Update((progress / (total / 100)));
-        });
-        auto ret = httpUpdate.update(client, updateUrl.startsWith("http") ? updateUrl : getFirmwareUrl());
-        switch (ret) {
-            case HTTP_UPDATE_FAILED:
-                Serial.printf("Http Update Failed (Error=%d): %s\r\n", httpUpdate.getLastError(), httpUpdate.getLastErrorString().c_str());
-                break;
-            case HTTP_UPDATE_NO_UPDATES:
-                Serial.printf("No Update!\r\n");
-                break;
-            case HTTP_UPDATE_OK:
-                Serial.printf("Update OK!\r\n");
-                break;
+    HttpReleaseUpdate httpUpdate;  // Declare httpUpdate here to keep it in scope
+    HttpUpdateResult updateResult;
+
+    Serial.printf("Starting firmware update process for URL: %s\n", url.c_str());
+
+    // Set up the callbacks
+    httpUpdate.onStart([]() {
+        autoUpdateAttempts++;
+        updateStartedMillis = millis();
+        GUI::Update(UPDATE_STARTED);
+        HttpWebServer::UpdateStart();
+        Serial.println("Firmware update started...");
+    });
+
+    httpUpdate.onEnd([](bool success) {
+        if (success) {
+            SPIFFS.remove("/update");
+            Serial.println("Firmware update applied successfully!");
+        } else {
+            Serial.println("Firmware update downloaded but not applied.");
         }
+        updateStartedMillis = 0;
+        GUI::Update(UPDATE_COMPLETE);
+        HttpWebServer::UpdateEnd();
+    });
+
+    httpUpdate.onProgress([](int progress, int total) {
+        GUI::Update((progress / (total / 100)));
+        Serial.printf("Update progress: %d%%\n", (progress * 100) / total);
+    });
+
+    // Choose the appropriate client based on the URL scheme (HTTP or HTTPS)
+    WiFiClient client;
+    if (isSecure) {
+        // HTTPS connection using WiFiClientSecure
+        WiFiClientSecure secureClient;
+        secureClient.setHandshakeTimeout(8);
+        secureClient.setInsecure();  // Allows connection to self-signed HTTPS servers
+        Serial.println("Using WiFiClientSecure for HTTPS connection");
+        client = secureClient;
+
+    }
+    else {
+         Serial.println("Using WiFiClient for HTTP connection");
+    }
+    client.setTimeout(12);
+    updateResult = httpUpdate.update(client, url);
+
+    // Check the result and log any failures
+    switch (updateResult) {
+        case HTTP_UPDATE_FAILED:
+            Serial.printf("HTTP Update Failed (Error=%d): %s\r\n", httpUpdate.getLastError(), httpUpdate.getLastErrorString().c_str());
+            break;
+        case HTTP_UPDATE_NO_UPDATES:
+            Serial.println("No Update available!");
+            break;
+        case HTTP_UPDATE_OK:
+            Serial.println("Firmware update applied successfully! Rebooting...");
+            break;
+        default:
+            Serial.printf("Unexpected update result: %d\n", updateResult);
+            break;
     }
 }
 
@@ -189,7 +219,7 @@ void ConnectToWifi() {
     autoUpdateEnabled = AsyncWiFiSettings.checkbox("auto_update", DEFAULT_AUTO_UPDATE, "Automatically update");
     prerelease = AsyncWiFiSettings.checkbox("prerelease", false, "Include pre-released versions in auto-update");
     arduinoOtaEnabled = AsyncWiFiSettings.checkbox("arduino_ota", DEFAULT_ARDUINO_OTA, "Arduino OTA Update");
-    updateUrl = AsyncWiFiSettings.string("update", "", "If set will update from this url on next boot");
+    updateUrl = AsyncWiFiSettings.string("update", "", "If set will update from this url on next boot (must start with http or https)");
 }
 
 void MarkOtaSuccess() {

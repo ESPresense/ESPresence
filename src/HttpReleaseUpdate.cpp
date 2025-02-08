@@ -4,7 +4,7 @@
 #include <esp_ota_ops.h>
 #include <esp_partition.h>
 
-HttpUpdateResult HttpReleaseUpdate::update(WiFiClientSecure& client, const String& url) {
+HttpUpdateResult HttpReleaseUpdate::update(WiFiClient& client, const String& url) {
     HTTPClient http;
     http.useHTTP10(true);
     http.setTimeout(_httpClientTimeout);

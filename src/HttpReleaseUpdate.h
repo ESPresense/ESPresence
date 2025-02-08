@@ -44,7 +44,7 @@ class HttpReleaseUpdate {
         _ledOn = ledOn;
     }
 
-    HttpUpdateResult update(WiFiClientSecure& client, const String& url);
+    HttpUpdateResult update(WiFiClient& client, const String& url);
 
     void onStart(HttpUpdateStartCB cbOnStart) { _cbStart = cbOnStart; }
     void onEnd(HttpUpdateEndCB cbOnEnd) { _cbEnd = cbOnEnd; }
